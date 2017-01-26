@@ -197,14 +197,16 @@ def is_hybrid_property(model, attr_name):
         names = attr_name.split('.')
         last_model = model
         for i in range(len(names)-1):
-            attr = getattr(last_model, names[i])
-            if is_association_proxy(attr):
-                attr = attr.remote_attr
-            last_model = attr.property.argument
-            if isinstance(last_model, _class_resolver):
-                last_model = model._decl_class_registry[last_model.arg]
-            elif isinstance(last_model, types.FunctionType):
-                last_model = last_model()
+            try:
+                attr = getattr(last_model, names[i])
+                if is_association_proxy(attr):
+                    attr = attr.remote_attr
+                last_model = attr.property.argument
+                if isinstance(last_model, _class_resolver):
+                    last_model = model._decl_class_registry[last_model.arg]
+                elif isinstance(last_model, types.FunctionType):
+                    last_model = last_model()
+            except: continue
         last_name = names[-1]
         return last_name in get_hybrid_properties(last_model)
     else:
